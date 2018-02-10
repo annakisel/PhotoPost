@@ -1,0 +1,11 @@
+commit 5cd433ea1e198cbc8c1810d74930a8e5818e1203
+Author: Anna <anyakisel17@gmail.com>
+Date:   Sat Feb 10 13:59:33 2018 +0300
+
+    add status.txt
+
+commit 9edb2aa3271d05dc5b628c58aae79a9f0546f161
+Author: Anna <anyakisel17@gmail.com>
+Date:   Sat Feb 10 13:53:58 2018 +0300
+
+    add .gitignore
