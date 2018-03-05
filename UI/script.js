@@ -197,9 +197,13 @@ let action = (function () {
             return b.createdAt - a.createdAt;
         });
         let necessaryPhotos = photoPosts.slice();
-        skip = skip ? skip : 0;
-        top = top ? top : 10;
-        filterConfig = filterConfig ? filterConfig : {};
+        skip = skip || 0;
+        top = top || 10;
+        filterConfig = filterConfig || {};
+        if (typeof filterConfig !== 'object') {
+            console.log('incorrect the third parameter');
+            return false;
+        }
         if (filterConfig.hasOwnProperty('dateFrom') && filterConfig.hasOwnProperty('dateTo')) {
             if (typeof filterConfig.dateFrom === 'string' || typeof filterConfig.dateTo === 'string') {
                 console.log('please, input the date correct\nsomething like this {dateFrom: new Date(\'2018-01-29T00:00:00\'), dateTo: new Date(\'2018-02-04T00:00:00\')}');
@@ -227,11 +231,12 @@ let action = (function () {
         if (skip > necessaryPhotos.length && necessaryPhotos.length !== 0) {
             console.log('I found something, but not too many posts as u want(less than ' + skip + ')');
         }
-        if (skip > 0) {
-            necessaryPhotos.splice(0, skip);
-        }
-        if (necessaryPhotos.length > top) {
-            necessaryPhotos.splice(top);
+        if (skip >= 0 && necessaryPhotos.length > top + skip) {
+            necessaryPhotos = necessaryPhotos.slice(skip, skip + top);
+        } else {
+            if (skip >= 0) {
+                necessaryPhotos = necessaryPhotos.slice(skip, necessaryPhotos.length);
+            }
         }
         return necessaryPhotos;
     }
@@ -258,7 +263,7 @@ let action = (function () {
             for (let i = 0; i < photoPosts.length; i++) {
                 if (photoPosts[i] !== post) {
                     if (photoPosts[i].id === post.id) {
-                        console.log('wrong id');
+                        console.log('we have such id');
                         return false;
                     }
                 }
