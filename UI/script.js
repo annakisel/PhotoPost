@@ -192,6 +192,8 @@ let photoPosts = [
 ];
 
 let action = (function () {
+
+
     function getPhotoPosts(skip, top, filterConfig) {
         photoPosts.sort(function compareDates(a, b) {
             return b.createdAt - a.createdAt;
@@ -251,59 +253,56 @@ let action = (function () {
         return false;
     }
 
+    let validate = {
+        id: function (id) {
+            return photoPosts.every(function (post) {
+                return id !== post.id;
+            });
+        },
+
+        description: function (description) {
+            return !(description.length === 0 || description.length > 200);
+        },
+
+        createdAt: function (createdAt) {
+            return (typeof createdAt === 'object');
+        },
+
+        author: function (author) {
+            return author.length;
+        },
+
+        photoLink: function (photoLink) {
+            return photoLink.length;
+        },
+
+        hashTags: function (hashTags) {
+            return hashTags.every(function (item) {
+                return (item.length < 20 && item.length !== 0);
+            });
+        },
+
+        likes: function (likes) {
+            return likes.every(function (item) {
+                return (item.length !== 0);
+            });
+        }
+    };
+
     function validatePhotoPost(post) {
         if (typeof post === 'object') {
-            let checking;
-            if (!post.hasOwnProperty('id') || !post.hasOwnProperty('description')
-                || !post.hasOwnProperty('author') || !post.hasOwnProperty('createdAt')
-                || !post.hasOwnProperty('photoLink')) {
-                console.log('your post haven\'t any keys');
-                return false;
-            }
-            for (let i = 0; i < photoPosts.length; i++) {
-                if (photoPosts[i] !== post) {
-                    if (photoPosts[i].id === post.id) {
-                        console.log('we have such id');
-                        return false;
+            let a;
+            return Object.keys(validate).every(function (item) {
+                if (post.hasOwnProperty(item)) {
+                    a = validate[item](post[item]);
+                    if (!a) {
+                        console.log("wrong " + item);
                     }
+                    return a;
                 }
-            }
-            if (post.description.length > 200) {
-                console.log('wrong description');
+                console.log('you haven\'t any key');
                 return false;
-            }
-            if (typeof post.createdAt !== 'object') {
-                console.log('wrong date');
-                return false;
-            }
-            if (post.author.length === 0) {
-                console.log('empty author');
-                return false;
-            }
-            if (post.photoLink.length === 0) {
-                console.log('empty photoLink');
-                return false;
-            }
-            if (post.hasOwnProperty('hashTags')) {
-                checking = post.hashTags.every(function (item) {
-                    return (item.length < 20 && item.length !== 0);
-
-                });
-                if (!checking) {
-                    console.log('wrong hashtags');
-                    return false;
-                }
-            }
-            if (post.hasOwnProperty('likes')) {
-                checking = post.likes.every(function (item) {
-                    return (item.length !== 0);
-                });
-                if (!checking) {
-                    console.log('wrong likes');
-                    return false;
-                }
-            }
-            return true;
+            });
         }
         console.log('this post is\'t an object ');
         return false;
