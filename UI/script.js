@@ -190,10 +190,9 @@ let photoPosts = [
         likes: ['kendalljenner', 'kasparyants', 'bellahadid', 'artcultureandstyle']
     }
 ];
+let user = 'classisinternal';
 
 let action = (function () {
-
-
     function getPhotoPosts(skip, top, filterConfig) {
         photoPosts.sort(function compareDates(a, b) {
             return b.createdAt - a.createdAt;
@@ -296,7 +295,7 @@ let action = (function () {
                 if (post.hasOwnProperty(item)) {
                     a = validate[item](post[item]);
                     if (!a) {
-                        console.log("wrong " + item);
+                        console.log('wrong ' + item);
                     }
                     return a;
                 }
@@ -353,10 +352,9 @@ let action = (function () {
         if (post.hasOwnProperty('photoLink')) {
             total = photoPosts.some(function (item) {
                 if (item.id === id) {
-                    if (validatePhotoPost(item)) {
-                        item.photoLink = post.photoLink;
-                        return true;
-                    }
+                    item.photoLink = post.photoLink;
+                    return true;
+
                 }
             });
             if (!total) {
@@ -366,10 +364,9 @@ let action = (function () {
         if (post.hasOwnProperty('description')) {
             total = photoPosts.some(function (item) {
                 if (item.id === id) {
-                    if (validatePhotoPost(item)) {
-                        item.description = post.description;
-                        return true;
-                    }
+                    item.description = post.description;
+                    return true;
+
                 }
             });
             if (!total) {
@@ -379,11 +376,10 @@ let action = (function () {
         if (post.hasOwnProperty('hashTags')) {
             total = photoPosts.some(function (item) {
                 if (item.id === id) {
-                    if (validatePhotoPost(item)) {
-                        delete item.hashTags;
-                        item.hashTags = post.hashTags;
-                        return true;
-                    }
+                    delete item.hashTags;
+                    item.hashTags = post.hashTags;
+                    return true;
+
                 }
             });
             if (!total) {
@@ -415,3 +411,135 @@ let action = (function () {
         removePhotoPost
     }
 })();
+
+let a = (function () {
+    let options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+    };
+
+    function generatePhotoPosts() {
+        let photos = document.querySelector('.photos');
+        if (photos.childNodes.length > 3) {
+            let n = photos.childNodes.length;
+            for (let i = n - 1; i >= 0; i--) {
+                photos.childNodes[i].parentNode.removeChild(photos.childNodes[i]);
+            }
+        }
+        let n;
+        if (photoPosts.length >= 10) {
+            n = 10;
+        } else {
+            n = photoPosts.length;
+        }
+        for (let i = 0; i < n; i++) {
+            addPostAtTheEnd(photoPosts[i])
+        }
+        if (n === 10) {
+            document.querySelector('.show-more').style.display = 'inline-block';
+        }
+    }
+
+    function addPostAtTheEnd(post) {
+        let photo = document.querySelector('.photo');
+        let clone = photo.cloneNode(true);
+        clone.id = post.id;
+        clone.style.display = 'inline-block';
+        clone.querySelectorAll('.text')[1].innerHTML = post.description;
+        clone.querySelector('.text').innerHTML = post.createdAt.toLocaleString("en-US", options);
+        clone.querySelector('.user-name').innerHTML = post.author;
+        clone.querySelector('.photojpg').src = post.photoLink;
+        let tags = clone.querySelectorAll('.text')[2];
+        let string = "";
+        post.hashTags.forEach(function (item) {
+            string += " #" + item;
+        });
+        tags.innerHTML = string;
+        let photos = document.querySelector('.photos');
+        photos.appendChild(clone);
+        if (user !== post.author) {
+            clone.querySelectorAll('.material-icons')[0].style.display = 'none';
+            clone.querySelectorAll('.material-icons')[1].style.display = 'none';
+        }
+    }
+
+    function generatePhoto() {
+        generatePhotoPosts();
+    }
+
+    function removePhoto(id) {
+        if (document.getElementById(id) !== null) {
+            document.getElementById(id).parentNode.removeChild(document.getElementById(id));
+            generatePhotoPosts();
+        }
+    }
+
+    function editMyPhotoPost(id) {
+        if (document.getElementById(id) !== null) {
+            generatePhotoPosts();
+        }
+    }
+
+    function showElementsOnHeader() {
+        let name = document.querySelector('.name');
+        name.innerHTML = user;
+        name.style.display = 'inline-block';
+        if (user === null) {
+            document.querySelector('.button').innerHTML = 'Log in';
+        } else {
+            document.querySelector('.button').innerHTML = 'Log out';
+            document.querySelector('.button2').style.display = 'inline';
+        }
+    }
+
+    return {
+        generatePhoto,
+        generatePhotoPosts,
+        removePhoto,
+        editMyPhotoPost,
+        showElementsOnHeader
+    }
+})();
+
+function generatePhotoPosts() {
+    a.generatePhotoPosts();
+}
+
+function addPhotoPost(post) {
+    if (action.addPhotoPost(post)) {
+        a.generatePhoto();
+    }
+}
+
+function removePhoto(id) {
+    if (action.getPhotoPost(id)[0] !== undefined) {
+        if (action.getPhotoPost(id)[0].author === user) {
+            action.removePhotoPost(id);
+            a.removePhoto(id);
+        } else {
+            console.log('you can\'t delete post thais is\'t yours')
+        }
+    }
+}
+
+function editPhoto(id, post) {
+    if (action.getPhotoPost(id)[0] !== undefined) {
+        if (action.getPhotoPost(id)[0].author === user) {
+            action.editPhotoPost(id, post);
+            a.editMyPhotoPost(id);
+        } else {
+            console.log('you can\'t edit post thais is\'t yours')
+        }
+    }
+}
+
+function showFullHeader(){
+    a.showElementsOnHeader();
+}
+
+generatePhotoPosts();
+showFullHeader();
