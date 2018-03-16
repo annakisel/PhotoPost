@@ -412,7 +412,7 @@ let action = (function () {
     }
 })();
 
-let a = (function () {
+let dom = (function () {
     let options = {
         year: 'numeric',
         month: 'long',
@@ -424,18 +424,8 @@ let a = (function () {
 
     function generatePhotoPosts() {
         let photos = document.querySelector('.photos');
-        if (photos.childNodes.length > 3) {
-            let n = photos.childNodes.length;
-            for (let i = n - 1; i >= 0; i--) {
-                photos.childNodes[i].parentNode.removeChild(photos.childNodes[i]);
-            }
-        }
-        let n;
-        if (photoPosts.length >= 10) {
-            n = 10;
-        } else {
-            n = photoPosts.length;
-        }
+        photos.innerHTML = '';
+        let n = photoPosts.length >= 10 ? 10 : photoPosts.length;
         for (let i = 0; i < n; i++) {
             addPostAtTheEnd(photoPosts[i])
         }
@@ -449,14 +439,14 @@ let a = (function () {
         let clone = photo.cloneNode(true);
         clone.id = post.id;
         clone.style.display = 'inline-block';
-        clone.querySelectorAll('.text')[1].innerHTML = post.description;
-        clone.querySelector('.text').innerHTML = post.createdAt.toLocaleString("en-US", options);
+        clone.querySelector('.description').innerHTML = post.description;
+        clone.querySelector('.date').innerHTML = post.createdAt.toLocaleString('en-US', options);
         clone.querySelector('.user-name').innerHTML = post.author;
         clone.querySelector('.photojpg').src = post.photoLink;
-        let tags = clone.querySelectorAll('.text')[2];
-        let string = "";
+        let tags = clone.querySelector('.hashtag');
+        let string = '';
         post.hashTags.forEach(function (item) {
-            string += " #" + item;
+            string = `${string} #${item}`;
         });
         tags.innerHTML = string;
         let photos = document.querySelector('.photos');
@@ -506,12 +496,12 @@ let a = (function () {
 })();
 
 function generatePhotoPosts() {
-    a.generatePhotoPosts();
+    dom.generatePhotoPosts();
 }
 
 function addPhotoPost(post) {
     if (action.addPhotoPost(post)) {
-        a.generatePhoto();
+        dom.generatePhoto();
     }
 }
 
@@ -519,9 +509,9 @@ function removePhoto(id) {
     if (action.getPhotoPost(id)[0] !== undefined) {
         if (action.getPhotoPost(id)[0].author === user) {
             action.removePhotoPost(id);
-            a.removePhoto(id);
+            dom.removePhoto(id);
         } else {
-            console.log('you can\'t delete post thais is\'t yours')
+            console.log('you can\'t delete post that is\'t yours')
         }
     }
 }
@@ -530,15 +520,15 @@ function editPhoto(id, post) {
     if (action.getPhotoPost(id)[0] !== undefined) {
         if (action.getPhotoPost(id)[0].author === user) {
             action.editPhotoPost(id, post);
-            a.editMyPhotoPost(id);
+            dom.editMyPhotoPost(id);
         } else {
             console.log('you can\'t edit post thais is\'t yours')
         }
     }
 }
 
-function showFullHeader(){
-    a.showElementsOnHeader();
+function showFullHeader() {
+    dom.showElementsOnHeader();
 }
 
 generatePhotoPosts();
