@@ -1,11 +1,13 @@
 body {
+    /*background-image: url("photos/background22.jpg");*/
     margin: 0;
 }
 
 .header {
+    color: white;
+    background-color: black;
     padding-right: 4%;
     z-index: 1;
-    background: black;
     position: fixed;
     overflow: no-display;
     width: 96%;
@@ -17,7 +19,6 @@ body {
 
 .name {
     margin-left: 5vw;
-    color: white;
     font-size: 2vh;
     font-family: Georgia, "Times New Roman", serif;
     text-decoration: underline;
@@ -32,7 +33,6 @@ body {
 }
 
 .pp {
-    color: white;
     font-size: 8vh;
     font-weight: bold;
     font-style: italic;
@@ -158,9 +158,26 @@ body {
     font-size: 2vh;
 }
 
-.description, .hashtag, .date {
+
+.description, .hashtag {
+    width: 30vw;
     font-family: Monospaced, monospace;
     font-size: 2vh;
+    margin-top: 0;
+    text-align: left;
+}
+
+.date{
+    max-width: 50vw;
+    font-family: Monospaced, monospace;
+    font-size: 2vh;
+    margin-top: 0;
+    text-align: right;
+}
+
+.likes{
+    font-family: Monospaced, monospace;
+    font-size: 4vh;
     margin-top: 0;
 }
 
@@ -176,10 +193,6 @@ body {
     width: 70vmin;
 }
 
-/*.icons{
-    float: right;
-}*/
-
 .icons .material-icons {
     font-size: 3vh;
 }
@@ -191,9 +204,9 @@ body {
 }
 
 .footer {
+    background-color: black;
     color: white;
     text-align: center;
-    background: black;
     box-sizing: content-box;
     position: fixed;
     bottom: 0;
@@ -205,7 +218,6 @@ body {
 }
 
 .photopost {
-    color: white;
     font-family: "Comic Sans MS", serif;
     font-weight: bold;
     margin-left: 7vw;
@@ -213,7 +225,6 @@ body {
 }
 
 .lastChanges {
-    color: white;
     font-family: Georgia, serif;
     font-size: 2vmax;
 }
@@ -224,8 +235,155 @@ body {
 }
 
 .author {
-    color: white;
     font-family: Georgia, serif;
     margin-right: 5vw;
     font-size: 1.5vmax;
+}
+
+.add-new-photo {
+    display: none;
+    text-align: center;
+    background: #F5F7FA;
+    color: black;
+    width: 100%;
+    position: fixed;
+    top: 12vh;
+    bottom: 7vh;
+    box-sizing: content-box;
+}
+
+.fill-in-informaiton {
+    font-size: 2vh;
+    font-family: Monospaced, monospace;
+    background: #F5F7FA;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    top: 12vh;
+    bottom: 7vh;
+    box-sizing: content-box;
+}
+
+.field-names {
+    display: flex;
+    flex-direction: column;
+    width: 15vh;
+    margin-left: 5vw;
+    text-align: left;
+}
+
+.field-name, .fill-in-name {
+    margin: 4vh 0 4vh 0;
+}
+
+.field-name-description {
+    margin: 6vh 0 8vh 0;
+}
+
+.fill-in-fields {
+    display: flex;
+    flex-direction: column;
+    margin-left: 5vw;
+    text-align: left;
+}
+
+.fill-in-field {
+    margin: 5% 2% 5% 2%;
+}
+
+.fill-in-date {
+    font-weight: initial;
+    margin: 2vh 0 5vh 0;
+}
+
+.browse {
+    border-radius: 4px;
+    border: none;
+    background-color: #6d54fb;
+    width: 12vh;
+    color: white;
+    padding: 1vh 2vh 1vh 2vh;
+    margin: 3vh 0 4vh 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 2vh;
+}
+
+.my-file{
+    visibility: hidden;
+}
+
+.hashtags-textarea, .description-textarea {
+    font-size: 2vh;
+    margin: 0 0 4vh 0;
+}
+
+.add {
+    width: 100%;
+    display: inline;
+}
+
+.autorization-page {
+    color: white;
+    width: 100%;
+    display: none;
+    position: fixed;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 12vh;
+    bottom: 7vh;
+    box-sizing: content-box;
+}
+
+.span-autoriz, .error-404 {
+    font-family: "Comic Sans MS", serif;
+    font-weight: bold;
+    font-size: 6vmin;
+    margin: 3vh 0 3vh 0;
+}
+
+.field-for-autoriz {
+    font-family: "Comic Sans MS", serif;
+    font-size: 4vmin;
+    margin: 2vh 2vh 2vh 2vh;
+}
+
+.fields-autorization{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 2vh;
+}
+
+.field-names-aut, .fill-in-aut {
+    display: flex;
+    flex-direction: column;
+    width: 30vmin;
+    text-align: left;
+}
+
+.input-user-name, .password {
+    height: auto;
+    font-size: 4vmin;
+    width: auto;
+    margin: 2vh 2vh 2vh 2vh;
+}
+
+.error-page {
+    color: white;
+    width: 100%;
+    display: none;
+    position: fixed;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 12vh;
+    bottom: 7vh;
+    box-sizing: content-box;
+}
+
+.smth-went-wrong{
+    font-family: "Comic Sans MS", serif;
+    font-size: 4vmin;
+    margin: 2vh 2vh 5vh 2vh;
 }

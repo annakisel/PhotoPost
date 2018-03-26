@@ -206,28 +206,37 @@ let action = (function () {
             return false;
         }
         if (filterConfig.hasOwnProperty('dateFrom') && filterConfig.hasOwnProperty('dateTo')) {
-            if (typeof filterConfig.dateFrom === 'string' || typeof filterConfig.dateTo === 'string') {
-                console.log('please, input the date correct\nsomething like this {dateFrom: new Date(\'2018-01-29T00:00:00\'), dateTo: new Date(\'2018-02-04T00:00:00\')}');
-                return false;
+            if (isValidDate(filterConfig.dateFrom) || isValidDate(filterConfig.dateTo)) {
+                if (typeof filterConfig.dateFrom === 'string' || typeof filterConfig.dateTo === 'string') {
+                    console.log('please, input the date correct\nsomething like this {dateFrom: new Date(\'2018-01-29T00:00:00\'), dateTo: new Date(\'2018-02-04T00:00:00\')}');
+                    return false;
+                }
+                necessaryPhotos = necessaryPhotos.filter(function (post) {
+                    return ((post.createdAt > filterConfig.dateFrom && post.createdAt < filterConfig.dateTo)
+                        || post.createdAt === filterConfig.dateFrom || post.createdAt === filterConfig.dateTo);
+                });
             }
-            necessaryPhotos = necessaryPhotos.filter(function (post) {
-                return ((post.createdAt > filterConfig.dateFrom && post.createdAt < filterConfig.dateTo)
-                    || post.createdAt === filterConfig.dateFrom || post.createdAt === filterConfig.dateTo);
-            });
         }
         if (filterConfig.hasOwnProperty('hashTags')) {
-            if (typeof filterConfig.hashTags === 'object') {
-                console.log('please, input hashtags correct\nsomething like this {hashTags: \'cat\'}');
-                return false;
+            if (filterConfig.hashTags.length !== 0) {
+                if (typeof filterConfig.hashTags === 'object') {
+                    console.log('please, input hashtags correct\nsomething like this {hashTags: \'cat\'}');
+                    return false;
+                }
+                necessaryPhotos = necessaryPhotos.filter(function (post) {
+                    return post.hashTags.some(function (item) {
+                        return item.toLowerCase() === filterConfig.hashTags.toLowerCase()
+                    });
+                    /* includes(filterConfig.hashTags.toLowerCase());*/
+                });
             }
-            necessaryPhotos = necessaryPhotos.filter(function (post) {
-                return post.hashTags.includes(filterConfig.hashTags);
-            });
         }
         if (filterConfig.hasOwnProperty('author')) {
-            necessaryPhotos = necessaryPhotos.filter(function (post) {
-                return post.author === filterConfig.author;
-            });
+            if (filterConfig.author.length !== 0) {
+                necessaryPhotos = necessaryPhotos.filter(function (post) {
+                    return post.author.toLowerCase() === filterConfig.author.toLowerCase();
+                });
+            }
         }
         if (skip > necessaryPhotos.length && necessaryPhotos.length !== 0) {
             console.log('I found something, but not too many posts as u want(less than ' + skip + ')');
@@ -240,6 +249,11 @@ let action = (function () {
             }
         }
         return necessaryPhotos;
+    }
+
+    function isValidDate(value) {
+        let dateWrapper = new Date(value);
+        return !isNaN(dateWrapper.getDate());
     }
 
     function getPhotoPost(id) {
@@ -263,8 +277,9 @@ let action = (function () {
             return !(description.length === 0 || description.length > 200);
         },
 
-        createdAt: function (createdAt) {
-            return (typeof createdAt === 'object');
+        createdAt: function (value) {
+            let dateWrapper = new Date(value);
+            return !isNaN(dateWrapper.getDate());
         },
 
         author: function (author) {
@@ -408,7 +423,8 @@ let action = (function () {
         validatePhotoPost,
         addPhotoPost,
         editPhotoPost,
-        removePhotoPost
+        removePhotoPost,
+        isValidDate
     }
 })();
 
@@ -422,15 +438,17 @@ let dom = (function () {
         second: 'numeric'
     };
 
-    function generatePhotoPosts() {
+    function generatePhotoPosts(array) {
+        array = array || photoPosts;
         let photos = document.querySelector('.photos');
         photos.innerHTML = '';
-        let n = photoPosts.length >= 10 ? 10 : photoPosts.length;
-        for (let i = 0; i < n; i++) {
-            addPostAtTheEnd(photoPosts[i])
+        for (let i = 0; i < array.length; i++) {
+            addPostAtTheEnd(array[i]);
         }
-        if (n === 10) {
+        if (array.length === 10) {
             document.querySelector('.show-more').style.display = 'inline-block';
+        } else {
+            document.querySelector('.show-more').style.display = 'none';
         }
     }
 
@@ -443,6 +461,7 @@ let dom = (function () {
         clone.querySelector('.date').innerHTML = post.createdAt.toLocaleString('en-US', options);
         clone.querySelector('.user-name').innerHTML = post.author;
         clone.querySelector('.photojpg').src = post.photoLink;
+        clone.querySelector('.likes').innerHTML = post.likes.length;
         let tags = clone.querySelector('.hashtag');
         let string = '';
         post.hashTags.forEach(function (item) {
@@ -451,20 +470,32 @@ let dom = (function () {
         tags.innerHTML = string;
         let photos = document.querySelector('.photos');
         photos.appendChild(clone);
+        clone.querySelector('.likes').id = post.id + '_like';
+        clone.querySelectorAll('.material-icons')[2].id = post.id + '_heart';
+        clone.querySelectorAll('.material-icons')[2].addEventListener('click', onclickLike);
         if (user !== post.author) {
-            clone.querySelectorAll('.material-icons')[0].style.display = 'none';
+            clone.querySelectorAll('.material-icons')[0].style.display = 'none'; //'23' => '23_like'
             clone.querySelectorAll('.material-icons')[1].style.display = 'none';
+        } else {
+            clone.querySelectorAll('.material-icons')[1].id = post.id + '_delete';
+            clone.querySelectorAll('.material-icons')[1].addEventListener('click', onclickDeletePh);
+            clone.querySelectorAll('.material-icons')[0].id = post.id + '_edit';
+            //clone.querySelectorAll('.material-icons')[0].addEventListener('click', onclickEdit);
+        }
+        if (post.likes.indexOf(user) !== -1) {
+            clone.querySelectorAll('.material-icons')[2].style.color = 'red';
         }
     }
 
-    function generatePhoto() {
-        generatePhotoPosts();
+    function generatePhoto(array) {
+        generatePhotoPosts(array);
     }
 
     function removePhoto(id) {
         if (document.getElementById(id) !== null) {
             document.getElementById(id).parentNode.removeChild(document.getElementById(id));
-            generatePhotoPosts();
+            let array = action.getPhotoPosts();
+            generatePhotoPosts(array);
         }
     }
 
@@ -480,9 +511,10 @@ let dom = (function () {
         name.style.display = 'inline-block';
         if (user === null) {
             document.querySelector('.button').innerHTML = 'Log in';
+            document.querySelector('.button-add-photo').style.display = 'none';
         } else {
             document.querySelector('.button').innerHTML = 'Log out';
-            document.querySelector('.button2').style.display = 'inline';
+            document.querySelector('.button-add-photo').style.display = 'inline';
         }
     }
 
@@ -495,14 +527,18 @@ let dom = (function () {
     }
 })();
 
-function generatePhotoPosts() {
-    dom.generatePhotoPosts();
+function generatePhotoPosts(array) {
+    array = array || action.getPhotoPosts();
+    dom.generatePhotoPosts(array);
 }
 
 function addPhotoPost(post) {
-    if (action.addPhotoPost(post)) {
-        dom.generatePhoto();
+    let check = action.addPhotoPost(post);
+    if (check) {
+        let array = action.getPhotoPosts();
+        dom.generatePhoto(array);
     }
+    return check;
 }
 
 function removePhoto(id) {
@@ -521,8 +557,10 @@ function editPhoto(id, post) {
         if (action.getPhotoPost(id)[0].author === user) {
             action.editPhotoPost(id, post);
             dom.editMyPhotoPost(id);
+            return true;
         } else {
-            console.log('you can\'t edit post thais is\'t yours')
+            console.log('you can\'t edit post thais is\'t yours');
+            return false;
         }
     }
 }
@@ -533,3 +571,157 @@ function showFullHeader() {
 
 generatePhotoPosts();
 showFullHeader();
+
+let logIn = document.querySelector('button');
+logIn.addEventListener('click', onclickLogIn);
+let forms = document.forms[0];
+let searchUserNameInput = forms.elements.filterByName;
+let searchDateFrom = forms.elements.filterByDateFrom;
+let searchDateTill = forms.elements.filterByDateTill;
+let searchHashTags = forms.elements.filterByHashtag;
+
+let letsFilter = document.querySelectorAll('button')[1];
+letsFilter.addEventListener('click', onclickLetsFilter);
+
+/*let showMore = document.getElementsByName('showMore')[0];
+showMore.addEventListener('click', onclickShowMore);*/
+
+let addPhoto = document.getElementsByName('addPhoto')[0];
+addPhoto.addEventListener('click', onclickAddPhoto);
+
+let browse = document.querySelector('.browse');
+browse.addEventListener('mouseup', onclickBrowse);
+
+let toMainPage = document.getElementsByName('back-to-main-p')[0];
+toMainPage.addEventListener('click', onclickToMainPage);
+
+function onclickLogIn() {
+    if (user === null) {
+        logIn.style.visibility = 'hidden';
+        document.querySelector('.lenta').style.display = 'none';
+        document.querySelector('.autorization-page').style.display = 'flex';
+        document.body.style.backgroundImage = 'url(\'photos/background3.jpg\')';
+        document.querySelector('.header').style.backgroundColor = 'transparent';
+        document.querySelector('.footer').style.backgroundColor = 'transparent';
+
+    } else {
+        user = null;
+        showFullHeader();
+        generatePhotoPosts();
+    }
+}
+
+function onclickLetsFilter() {
+    let name = searchUserNameInput.value;
+    let dateFrom = searchDateFrom.value;
+    let dateTill = searchDateTill.value;
+    let ht = searchHashTags.value;
+    let photos = action.getPhotoPosts(0, 10, {
+        hashTags: ht,
+        author: name,
+        dateFrom: new Date(Date.parse(dateFrom)),
+        dateTo: new Date(Date.parse(dateTill))
+    });
+    console.log(photos);
+    console.log(action.isValidDate(new Date(Date.parse(dateFrom))));
+    if (name.length !== 0 || action.isValidDate(new Date(Date.parse(dateFrom))) || action.isValidDate(new Date(Date.parse(dateFrom))) || ht.length !== 0) {
+        generatePhotoPosts(photos);
+    } else {
+        generatePhotoPosts();
+    }
+}
+
+function onclickAddPhoto() {
+    document.querySelector('.lenta').style.display = 'none';
+    document.querySelector('.add-new-photo').style.display = 'flex';
+    logIn.style.visibility = 'hidden';
+    //document.querySelector('.pp').style.marginRight = '40%';
+    let d = new Date();
+    document.querySelector('.fill-in-date').innerHTML = d.toLocaleString('en-US', dom.options);
+    document.getElementsByName('addButton')[0].innerHTML = 'Add';
+    document.querySelector('.fill-in-name').innerHTML = user;
+    let add = document.getElementsByName('addButton')[0];
+    add.addEventListener('click', onclickAdd);
+}
+
+function onclickBrowse() {
+    document.querySelector('.my-file').click();
+    let photoLink = document.querySelector('.my-file').value;
+    while (photoLink === null) {
+        let n = photoLink.lastIndexOf('\\');
+        photoLink = photoLink.substring(n);
+        document.querySelector('.photo-name').innerHTML = photoLink;
+    }
+}
+
+function onclickAdd() {
+    let name = user;
+    let id = Math.random();
+    let hashTags = document.querySelector('.hashtags-textarea').value;
+    document.querySelector('.hashtags-textarea').value = '';
+    hashTags = hashTags.trim();
+    hashTags = hashTags.split(/[ ,]+/);
+    let description = document.querySelector('.description-textarea').value;
+    document.querySelector('.description-textarea').value = '';
+    let photoLink = document.querySelector('.my-file').value;
+    document.querySelector('.my-file').value = '';
+    logIn.style.visibility = 'visible';
+    let n = photoLink.lastIndexOf('\\');
+    photoLink = photoLink.substring(n).length !== 0 ? 'photos\\' + photoLink.substring(n) : photoLink.substring(n);
+    let created = new Date();
+    let check = addPhotoPost({
+        id: id.toString(),
+        description: description,
+        createdAt: created,
+        author: name,
+        photoLink: photoLink,
+        hashTags: hashTags,
+        likes: []
+    });
+    if (!check) {
+        document.querySelector('.add-new-photo').style.display = 'none';
+        error();
+    } else {
+        document.querySelector('.lenta').style.display = 'inline';
+        document.querySelector('.add-new-photo').style.display = 'none';
+    }
+}
+
+function error() {
+    document.querySelector('.error-page').style.display = 'flex';
+    document.body.style.backgroundImage = 'url(\'photos/background22.jpg\')';
+    document.querySelector('.header').style.backgroundColor = 'transparent';
+    document.querySelector('.footer').style.backgroundColor = 'transparent';
+    logIn.style.visibility = 'hidden';
+    document.querySelector('.name').style.visibility = 'hidden';
+}
+
+function onclickToMainPage() {
+    document.querySelector('.error-page').style.display = 'none';
+    document.querySelector('.lenta').style.display = 'inline';
+    if (user !== null) {
+        document.querySelector('.name').style.visibility = 'visible';
+    }
+    logIn.style.visibility = 'visible';
+    document.querySelector('.header').style.backgroundColor = 'black';
+    document.querySelector('.footer').style.backgroundColor = 'black';
+}
+
+function onclickDeletePh() {
+    removePhoto(this.id.substring(0, this.id.indexOf('_')));
+}
+
+function onclickLike() {
+    let post = action.getPhotoPost(this.id.substring(0, this.id.indexOf('_')));
+    if (post[0].likes.indexOf(user) === -1 && user !== null) {
+        document.getElementById(post[0].id + '_like').innerHTML = parseInt(document.getElementById(post[0].id + '_like').innerHTML) + 1;
+        post[0].likes.push(user);
+        document.getElementById(this.id).style.color = 'red';
+    } else {
+        if(user!==null) {
+            post[0].likes.splice(post[0].likes.indexOf(user), 1);
+            document.getElementById(post[0].id + '_like').innerHTML = parseInt(document.getElementById(post[0].id + '_like').innerHTML) - 1;
+            document.getElementById(this.id).style.color = 'black';
+        }
+    }
+}
