@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <link href="styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -20,21 +21,22 @@
     <button class="button"><span> </span></button>
 </div>
 <div class="lenta">
-    <form class="forms">
+    <form class="forms" name="filterForm">
     <span class="filering">
         filter by name
-        <input class="filter" type="text" placeholder="di1ara">
+        <input class="filter" name="filterByName" type="text" placeholder="di1ara">
         date from
-        <input class="filter" type="text" placeholder="12.02.2018">
+        <input class="filter" name="filterByDateFrom" type="text" placeholder="Feb 02, 2018">
         till
-        <input class="filter" type="text" placeholder="15.02.2018">
+        <input class="filter" name="filterByDateTill" type="text" placeholder="Feb 04, 2018">
         hashtag
-        <input class="filter" type="text" placeholder="food">
-        <button class="button"><span>Let's filter</span></button>
+        <input class="filter" name="filterByHashtag" type="text" placeholder="food" >
+
     </span>
     </form>
-    <div class="button2">
-        <button class="button"><span>Add photo</span></button>
+    <button class="button"><span>Let's filter</span></button>
+    <div class="button-add-photo">
+        <button class="button" name="addPhoto"><span>Add photo</span></button>
     </div>
     <div class="photos" align="center">
 
@@ -58,6 +60,7 @@
                 <i class="material-icons">border_color</i>
                 <i class="material-icons">delete</i>
                 <i class="material-icons">favorite_border</i>
+                <span class="likes"></span>
             </div>
         </div>
         <div class="name-date-description">
@@ -68,7 +71,7 @@
         <br>
     </div>
     <div class="show-more" align="center">
-        <button class="button"><span>Show more</span></button>
+        <button class="button" name="showMore"><span>Show more</span></button>
     </div>
 </div>
 <div class="footer">
@@ -81,6 +84,72 @@
     <span class="author">
         Anna Kisel, 2 course, 7 group:<br> anyakisel17@gmail.com
     </span>
+</div>
+<div class="add-new-photo" align="center">
+    <div class="fill-in-informaiton">
+        <div class="field-names">
+                <span class="field-name">
+                    User name:
+                </span>
+            <span class="field-name">
+                   Choose photo:
+                </span>
+            <span class="field-name">
+                    Hashtags:
+                </span>
+            <span class="field-name-description">
+                    Description:
+                </span>
+            <span class="field-name">
+                    Date:
+                </span>
+        </div>
+        <div class="fill-in-fields">
+            <span class="fill-in-name">
+                </span>
+            <div class="browse-photo-name">
+                <button class="browse" type="button">Browse</button>
+                <span class="photo-name"></span>
+            </div>
+            <input type="file" class="my-file" multiple accept="image/*,image/jpeg">
+            <textarea class="hashtags-textarea" cols="30" rows="3" placeholder="photo, myday, perfect"></textarea>
+            <textarea class="description-textarea" cols="30" rows="4" placeholder="please, input a description"></textarea>
+            <span class="fill-in-date"></span>
+            <div class="add">
+                <button class="button" name="addButton"><span></span></button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="autorization-page">
+    <span class="span-autoriz">
+        Autorization
+    </span>
+    <div class="fields-autorization">
+        <div class="field-names-aut">
+        <span class="field-for-autoriz">
+            User name:
+        </span>
+            <span class="field-for-autoriz">
+            Password:
+        </span>
+
+        </div>
+        <div class="fill-in-aut">
+            <input class="input-user-name" type="text" placeholder="annakisel_">
+            <input class="password" type="password" placeholder="your password">
+        </div>
+    </div>
+    <button class="button"><span> Go </span></button>
+</div>
+<div class="error-page">
+    <div class="error-404">
+        ERROR 404
+    </div>
+    <div CLASS="smth-went-wrong">
+        Something went wrong
+    </div>
+    <button class="button" name="back-to-main-p"><span>Back to main page</span></button>
 </div>
 </body>
 <script src="script.js"></script>
