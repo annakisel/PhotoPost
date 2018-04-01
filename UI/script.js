@@ -237,7 +237,7 @@ let action = (function () {
             return false;
         }
         if (filterConfig.hasOwnProperty('dateFrom') && filterConfig.hasOwnProperty('dateTo')) {
-            if (isValidDate(filterConfig.dateFrom) || isValidDate(filterConfig.dateTo)) {
+            if (isValidDate(filterConfig.dateFrom) && isValidDate(filterConfig.dateTo)) {
                 if (typeof filterConfig.dateFrom === 'string' || typeof filterConfig.dateTo === 'string') {
                     console.log('please, input the date correct\nsomething like this {dateFrom: new Date(\'2018-01-29T00:00:00\'), dateTo: new Date(\'2018-02-04T00:00:00\')}');
                     return false;
@@ -285,7 +285,7 @@ let action = (function () {
 
     function isValidDate(value) {
         let dateWrapper = new Date(value);
-        return !isNaN(dateWrapper.getDate());
+        return !Number.isNaN(dateWrapper.getDate());
     }
 
     function getPhotoPost(id) {
@@ -745,7 +745,6 @@ function onclickAddPhoto() {
     document.querySelector('.lenta').style.display = 'none';
     document.querySelector('.add-new-photo').style.display = 'flex';
     logIn.style.visibility = 'hidden';
-    //document.querySelector('.pp').style.marginRight = '40%';
     let d = new Date();
     document.querySelector('.fill-in-date').innerHTML = d.toLocaleString('en-US', dom.options);
     document.querySelector('.fill-in-name').innerHTML = JSON.parse(localStorage.getItem('user'));
@@ -758,11 +757,6 @@ function onclickAddPhoto() {
 function onclickBrowse() {
     document.querySelector('.my-file').click();
     let photoLink = document.querySelector('.my-file').value;
-    while (photoLink === null) {
-        let n = photoLink.lastIndexOf('\\');
-        photoLink = photoLink.substring(n);
-        document.querySelector('.photo-name').innerHTML = photoLink;
-    }
 }
 
 function onclickAdd() {
