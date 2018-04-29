@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const actions = require('C:\\Users\\User\\IdeaProjects\\yp\\public\\server.js');
+const actions = require('./public/server.js');
 app.use(express.static('public'));
 
 let bodyParser = require('body-parser');

@@ -198,13 +198,13 @@ let pp;
 
 const fs = require('fs');
 
-fs.readFile('C:\\Users\\User\\IdeaProjects\\yp\\server\\data\\posts.json', 'utf8', function (err, data) {
+fs.readFile('./server/data/posts.json', 'utf8', function (err, data) {
     if (err) throw err;
     pp = JSON.parse(data);
 });
 
 function writePPToFile(){
-    fs.writeFile('C:\\Users\\User\\IdeaProjects\\yp\\server\\data\\posts.json', JSON.stringify(pp), (err) => {
+    fs.writeFile('./server/data/posts.json', JSON.stringify(pp), (err) => {
         if (err) throw err;
         console.log('The file has been saved!');
     });
@@ -356,96 +356,77 @@ let action = {
     },
 
      editPhotoPost: function(id, post) {
-        let total = false;
-        if (typeof post !== 'object') {
-            console.log('your post is\'t an object ');
-            return false;
-        }
-        if (typeof id !== 'string') {
-            console.log('incorrect id');
-            return false;
-        }
-        if (post.hasOwnProperty('photoLink')) {
-            if (post.photoLink.length === 0) {
-                console.log('your photoLink is wrong');
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('likes')) {
-            total = post.likes.every(function (item) {
-                return item.length !== 0;
-            });
-            if (!total) {
-                console.log('your likes are wrong');
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('description')) {
-            if (post.description.length > 200 || post.description.length === 0) {
-                console.log('your description is wrong');
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('hashTags')) {
-            total = post.hashTags.every(function (item) {
-                return (item.length < 20 && item.length !== 0);
-            });
-            if (!total) {
-                console.log('your hashTags are wrong');
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('photoLink')) {
-            total = pp.some(function (item) {
-                if (item.id === id) {
-                    item.photoLink = post.photoLink;
-                    return true;
+         let total = false;
+         if (typeof post !== 'object') {
+             console.log('your post is\'t an object ');
+             return false;
+         }
+         if (typeof id !== 'string') {
+             console.log('incorrect id');
+             return false;
+         }
+         if (post.hasOwnProperty('photoLink')) {
+             if (post.photoLink.length === 0) {
+                 console.log('your photoLink is wrong');
+                 return false;
+             }
+         }
+         if (post.hasOwnProperty('likes')) {
+             total = post.likes.every(function (item) {
+                 return item.length !== 0;
+             });
+             if (!total) {
+                 console.log('your likes are wrong');
+                 return total;
+             }
+         }
+         if (post.hasOwnProperty('description')) {
+             if (post.description.length > 200 || post.description.length === 0) {
+                 console.log('your description is wrong');
+                 return false;
+             }
+         }
+         if (post.hasOwnProperty('hashTags')) {
+             total = post.hashTags.every(function (item) {
+                 return (item.length < 20 && item.length !== 0);
+             });
+             if (!total) {
+                 console.log('your hashTags are wrong');
+                 return total;
+             }
+         }
 
-                }
-            });
-            if (!total) {
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('description')) {
-            total = pp.some(function (item) {
-                if (item.id === id) {
-                    item.description = post.description;
-                    return true;
+         let postPP = null;
 
-                }
-            });
-            if (!total) {
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('hashTags')) {
-            total = pp.some(function (item) {
-                if (item.id === id) {
-                    delete item.hashTags;
-                    item.hashTags = post.hashTags;
-                    return true;
+         pp.some(function (item) {
+             if (item.id === id) {
+                 postPP = item;
+             }
+         });
 
-                }
-            });
-            if (!total) {
-                return total;
-            }
-        }
-        if (post.hasOwnProperty('likes')) {
-            total = pp.some(function (item) {
-                if (item.id === id) {
-                    delete item.likes;
-                    item.likes = post.likes;
-                    return true;
-                }
-            });
-            if (!total) {
-                return total;
-            }
-        }
+         if (postPP === null) {
+             console.log('there\'s no posts with such id');
+             return false;
+         }
+
+         if (post.hasOwnProperty('photoLink')) {
+             postPP.photoLink = post.photoLink;
+         }
+
+         if (post.hasOwnProperty('description')) {
+             postPP.description = post.description;
+         }
+         if (post.hasOwnProperty('hashTags')) {
+             delete postPP.hashTags;
+             postPP.hashTags = post.hashTags;
+         }
+
+         if (post.hasOwnProperty('likes')) {
+             delete postPP.likes;
+             postPP.likes = post.likes;
+         }
         writePPToFile();
-        return total;
+        return true;
     },
 
      removePhotoPost: function(id) {
