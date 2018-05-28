@@ -203,7 +203,7 @@ fs.readFile('./server/data/posts.json', 'utf8', function (err, data) {
     pp = JSON.parse(data);
 });
 
-function writePPToFile(){
+function writePPToFile() {
     fs.writeFile('./server/data/posts.json', JSON.stringify(pp), (err) => {
         if (err) throw err;
         console.log('The file has been saved!');
@@ -229,15 +229,31 @@ function validatePhotoPost(post) {
     return false;
 }
 
+function isValidDate(value) {
+    let dateWrapper = new Date(value);
+    if (value === null) {
+        return false;
+    }
+    return !Number.isNaN(dateWrapper.getDate());
+}
 
 let action = {
-    getPhotoPosts: function(skip, top, filterConfig) {
+    getPhotoPosts: function (skip, top, filterConfig) {
         pp.sort(function compareDates(a, b) {
             return new Date(b.createdAt) - new Date(a.createdAt);
         });
         necessaryPhotos = pp.slice();
+        if (skip === 'undefined') {
+            skip = undefined;
+        }
+        if (top === 'undefined') {
+            top = undefined;
+        }
         skip = skip || 0;
         top = top || 10;
+        if (skip === undefined) {
+            console.log('skip is undefined');
+        }
         filterConfig = filterConfig || {};
         if (typeof filterConfig !== 'object') {
             console.log('incorrect the third parameter');
@@ -245,14 +261,17 @@ let action = {
         }
         if (filterConfig.hasOwnProperty('dateFrom') && filterConfig.hasOwnProperty('dateTo')) {
             if (isValidDate(filterConfig.dateFrom) && isValidDate(filterConfig.dateTo)) {
+                //console.log( "!!!!!!!!filterConfig.dateFrom "+filterConfig.dateFrom);
+                necessaryPhotos = necessaryPhotos.filter(function (post) {
+                    //console.log("post.createdAt"+post.createdAt);
+                    return ((new Date(post.createdAt) > new Date(filterConfig.dateFrom) && new Date(post.createdAt) < new Date(filterConfig.dateTo))
+                        || new Date(post.createdAt) === new Date(filterConfig.dateFrom) || new Date(post.createdAt) === new Date(filterConfig.dateTo));
+                });
+            } else{
                 if (typeof filterConfig.dateFrom === 'string' || typeof filterConfig.dateTo === 'string') {
                     console.log('please, input the date correct\nsomething like this {dateFrom: new Date(\'2018-01-29T00:00:00\'), dateTo: new Date(\'2018-02-04T00:00:00\')}');
                     return false;
                 }
-                necessaryPhotos = necessaryPhotos.filter(function (post) {
-                    return ((new Date(post.createdAt) > filterConfig.dateFrom && new Date(post.createdAt) < filterConfig.dateTo)
-                        || new Date(post.createdAt) === filterConfig.dateFrom || new Date(post.createdAt) === filterConfig.dateTo);
-                });
             }
         }
         if (filterConfig.hasOwnProperty('hashTags')) {
@@ -287,15 +306,11 @@ let action = {
             }
         }
         count = top + skip;
+        //console.log("showPh " + JSON.stringify(showPh));
         return showPh;
     },
 
-     isValidDate: function(value) {
-        let dateWrapper = new Date(value);
-        return !Number.isNaN(dateWrapper.getDate());
-    },
-
-     getPhotoPost: function(id) {
+    getPhotoPost: function (id) {
         if (typeof id === 'string') {
             return pp.filter(function (post) {
                 return post.id === id;
@@ -343,7 +358,7 @@ let action = {
         }
     },
 
-     addPhotoPost: function(post) {
+    addPhotoPost: function (post) {
         if (validatePhotoPost(post)) {
             pp.push(post);
             pp.sort(function compareDates(a, b) {
@@ -355,81 +370,81 @@ let action = {
         return false;
     },
 
-     editPhotoPost: function(id, post) {
-         let total = false;
-         if (typeof post !== 'object') {
-             console.log('your post is\'t an object ');
-             return false;
-         }
-         if (typeof id !== 'string') {
-             console.log('incorrect id');
-             return false;
-         }
-         if (post.hasOwnProperty('photoLink')) {
-             if (post.photoLink.length === 0) {
-                 console.log('your photoLink is wrong');
-                 return false;
-             }
-         }
-         if (post.hasOwnProperty('likes')) {
-             total = post.likes.every(function (item) {
-                 return item.length !== 0;
-             });
-             if (!total) {
-                 console.log('your likes are wrong');
-                 return total;
-             }
-         }
-         if (post.hasOwnProperty('description')) {
-             if (post.description.length > 200 || post.description.length === 0) {
-                 console.log('your description is wrong');
-                 return false;
-             }
-         }
-         if (post.hasOwnProperty('hashTags')) {
-             total = post.hashTags.every(function (item) {
-                 return (item.length < 20 && item.length !== 0);
-             });
-             if (!total) {
-                 console.log('your hashTags are wrong');
-                 return total;
-             }
-         }
+    editPhotoPost: function (id, post) {
+        let total = false;
+        if (typeof post !== 'object') {
+            console.log('your post is\'t an object ');
+            return false;
+        }
+        if (typeof id !== 'string') {
+            console.log('incorrect id');
+            return false;
+        }
+        if (post.hasOwnProperty('photoLink')) {
+            if (post.photoLink.length === 0) {
+                console.log('your photoLink is wrong');
+                return false;
+            }
+        }
+        if (post.hasOwnProperty('likes')) {
+            total = post.likes.every(function (item) {
+                return item.length !== 0;
+            });
+            if (!total) {
+                console.log('your likes are wrong');
+                return total;
+            }
+        }
+        if (post.hasOwnProperty('description')) {
+            if (post.description.length > 200 || post.description.length === 0) {
+                console.log('your description is wrong');
+                return false;
+            }
+        }
+        if (post.hasOwnProperty('hashTags')) {
+            total = post.hashTags.every(function (item) {
+                return (item.length < 20 && item.length !== 0);
+            });
+            if (!total) {
+                console.log('your hashTags are wrong');
+                return total;
+            }
+        }
 
-         let postPP = null;
+        let postPP = null;
 
-         pp.some(function (item) {
-             if (item.id === id) {
-                 postPP = item;
-             }
-         });
+        pp.some(function (item) {
+            if (item.id === id) {
+                postPP = item;
+            }
+        });
 
-         if (postPP === null) {
-             console.log('there\'s no posts with such id');
-             return false;
-         }
+        if (postPP === null) {
+            console.log('there\'s no posts with such id');
+            return false;
+        }
 
-         if (post.hasOwnProperty('photoLink')) {
-             postPP.photoLink = post.photoLink;
-         }
+        if (post.hasOwnProperty('photoLink')) {
+            postPP.photoLink = post.photoLink;
+        }
 
-         if (post.hasOwnProperty('description')) {
-             postPP.description = post.description;
-         }
-         if (post.hasOwnProperty('hashTags')) {
-             delete postPP.hashTags;
-             postPP.hashTags = post.hashTags;
-         }
+        if (post.hasOwnProperty('description')) {
+            postPP.description = post.description;
+        }
+        if (post.hasOwnProperty('hashTags')) {
+            delete postPP.hashTags;
+            postPP.hashTags = post.hashTags;
+        }
 
-         if (post.hasOwnProperty('likes')) {
-             delete postPP.likes;
-             postPP.likes = post.likes;
-         }
+        if (post.hasOwnProperty('likes')) {
+            delete postPP.likes;
+            postPP.likes = post.likes;
+        }
         writePPToFile();
         return true;
     },
 
-     removePhotoPost: function(id) {
+    removePhotoPost: function (id) {
         if (typeof id === 'string') {
             return pp.some(function (item, i) {
                 if (item.id === id) {
@@ -443,7 +458,7 @@ let action = {
         return false;
     },
 
-     cutNecessaryPhotos: function(top, skip) {
+    cutNecessaryPhotos: function (top, skip) {
         if (skip > necessaryPhotos.length && necessaryPhotos.length !== 0) {
             console.log('I found something, but not too many posts as u want(less than ' + skip + ')');
         }
@@ -457,6 +472,14 @@ let action = {
         }
         count = top + skip;
         return photos;
+    },
+
+    getNumOfPosts: function () {
+        return pp.length;
+    },
+
+    getAllPosts: function () {
+        return pp;
     }
 };
 module.exports = action;
